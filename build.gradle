@@ -1,0 +1,34 @@
+group 'ru.ryasale'
+version '1.0-SNAPSHOT'
+
+//apply plugin: 'java'
+apply plugin: 'scala'
+//apply plugin: 'idea'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.11'
+    compile 'ch.qos.logback:logback-classic:1.1.3'
+    compile 'org.codehaus.groovy:groovy:2.4.4'
+    compile 'org.scala-lang:scala-library:2.11.7'
+    compile 'com.google.code.findbugs:findbugs:3.0.1'
+    compile 'commons-httpclient:commons-httpclient:3.1' // TODO use new compile 'org.apache.httpcomponents:httpclient:4.5'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.4'
+}
+
+/*
+compileScala {
+    scalaCompileOptions.useCompileDaemon = true
+
+    // optionally specify host and port of the daemon:
+    scalaCompileOptions.daemonServer = "localhost:4243"
+}*/
