@@ -34,6 +34,8 @@ class ApnsServiceBuilder {
 
   val logger = LoggerFactory.getLogger(getClass)
 
+  val checkPasswordNotEmpty = false
+
   val KEYSTORE_TYPE: String = "PKCS12"
   val KEY_ALGORITHM: String =
     if (java.security.Security.getProperty("ssl.KeyManagerFactory.algorithm") == null) "sunx509" else java.security.Security.getProperty("ssl.KeyManagerFactory.algorithm")
@@ -168,9 +170,10 @@ class ApnsServiceBuilder {
       newSSLContext(keyStore, password, KEY_ALGORITHM))
   }
 
-  def assertPasswordNotEmpty(password: String) {
-    assert(password != null && password.length != 0,
-      new IllegalArgumentException("Passwords must be specified. Oracle Java SDK does not support passwordless p12 certificates"))
+  private def assertPasswordNotEmpty(password: String) {
+    if (checkPasswordNotEmpty)
+      assert(password != null && password.length != 0,
+        new IllegalArgumentException("Passwords must be specified. Oracle Java SDK does not support passwordless p12 certificates"))
   }
 
   /**

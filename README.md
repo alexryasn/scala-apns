@@ -4,3 +4,5 @@ Why? Answer: it's my first Scala experience, I just converted Java classes to Sc
 This code wasn't tested ever, it's sucessfull compiled only.
 
 When? Answer: my next steps will be testing this lib.
+
+###### You can test library, using your own certificate. You should put your "own_certificate.p12"" certificate file to src/test/resources/ru/ryasale/apns/ directory.
