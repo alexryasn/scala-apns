@@ -6,6 +6,7 @@ import java.security.KeyStore
 import java.util.concurrent.{Executors, ExecutorService, ThreadFactory}
 import javax.net.ssl.{SSLSocketFactory, SSLContext}
 
+import org.slf4j.LoggerFactory
 import ru.ryasale.apns.exceptions.{InvalidSSLConfig, RuntimeIOException}
 import ru.ryasale.apns.internal._
 import ru.ryasale.apns.internal.Utilities._
@@ -30,6 +31,8 @@ import ru.ryasale.apns.internal.Utilities._
  * </pre>
  */
 class ApnsServiceBuilder {
+
+  val logger = LoggerFactory.getLogger(getClass)
 
   val KEYSTORE_TYPE: String = "PKCS12"
   val KEY_ALGORITHM: String =
@@ -569,6 +572,9 @@ class ApnsServiceBuilder {
    * @return  a new instance of ApnsService
    */
   def build(): ApnsService = {
+
+    logger.info("build starting")
+
     checkInitialization()
     var service: ApnsService = null
 

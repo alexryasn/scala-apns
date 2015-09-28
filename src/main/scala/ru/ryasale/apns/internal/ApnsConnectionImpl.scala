@@ -17,19 +17,19 @@ import ru.ryasale.apns._
  * Created by ryasale on 22.09.15.
  */
 class ApnsConnectionImpl(factory: SocketFactory, host: String, port: Int, proxy: Proxy, proxyUsername: String, proxyPassword: String,
-                         reconnectPolicy: ReconnectPolicy, delegate: ApnsDelegate, errorDetection: Boolean, tf: ThreadFactory, var cacheLength: Int,
+                         reconnectPolicy: ReconnectPolicy, var delegate: ApnsDelegate, errorDetection: Boolean, tf: ThreadFactory, var cacheLength: Int,
                          autoAdjustCacheLength: Boolean, readTimeout: Int, connectTimeout: Int) extends ApnsConnection {
 
   val logger = LoggerFactory.getLogger(getClass)
 
-  private val threadFactory: ThreadFactory = null
+  private var threadFactory: ThreadFactory = null
 
   private val cachedNotifications, notificationsBuffer: ConcurrentLinkedQueue[ApnsNotification] = new ConcurrentLinkedQueue[ApnsNotification]
   private var socket: Socket = _
   private val threadId: AtomicInteger = new AtomicInteger(0)
 
-  if (delegate == null) ApnsDelegate.EMPTY else delegate
-  if (tf == null) defaultThreadFactory() else tf
+  delegate = if (delegate == null) ApnsDelegate.EMPTY else delegate
+  threadFactory = if (tf == null) defaultThreadFactory() else tf
 
   def this(factory: SocketFactory, host: String, port: Int, proxy: Proxy, proxyUsername: String, proxyPassword: String, reconnectPolicy: ReconnectPolicy, delegate: ApnsDelegate) = this(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy, delegate, false, null, ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0, 0)
 
@@ -38,14 +38,20 @@ class ApnsConnectionImpl(factory: SocketFactory, host: String, port: Int, proxy:
   def this(factory: SocketFactory, host: String, port: Int) = this(factory, host, port, new ReconnectPolicies.Never(), ApnsDelegate.EMPTY)
 
 
-  def defaultThreadFactory(): ThreadFactory = {
+  def defaultThreadFactory() = {
     new ThreadFactory() {
+      logger.debug("new thread factory")
       val wrapped = Executors.defaultThreadFactory()
+      logger.debug("wrapped {}", wrapped)
 
       override def newThread(r: Runnable) = {
+        logger.debug("r {}", r)
         val result = wrapped.newThread(r)
+        logger.debug("result {}", result)
         result.setName("MonitoringThread-" + threadId.incrementAndGet())
+        logger.debug("result {}", result)
         result.setDaemon(true)
+        logger.debug("result {}", result)
         result
       }
     }
