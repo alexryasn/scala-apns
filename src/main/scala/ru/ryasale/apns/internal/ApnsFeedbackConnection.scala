@@ -10,8 +10,9 @@ import org.slf4j.LoggerFactory
 import ru.ryasale.apns.exceptions.NetworkIOException
 
 /**
- * !Ready!
  * Created by ryasale on 22.09.15.
+ *
+ * Connection that used for getting feedback from APNS service.
  */
 class ApnsFeedbackConnection(factory: SocketFactory, host: String, port: Int,
                              proxy: Proxy, readTimeout: Int, connectTimeout: Int,
@@ -24,46 +25,45 @@ class ApnsFeedbackConnection(factory: SocketFactory, host: String, port: Int,
   val RETRIES = 3
 
   @throws(classOf[NetworkIOException])
-  def getInactiveDevices: Map[String, Date] = {
-    var attempts: Int = 0
-    val result: Map[String, Date] = null
-    while (true) {
-      try {
-        attempts += 1
-        val result: Map[String, Date] = getInactiveDevicesImpl
-        attempts = 0
-      } catch {
-        case e: Exception =>
-          logger.warn("Failed to retrieve invalid devices", e)
-          if (attempts >= RETRIES) {
-            logger.error("Couldn't get feedback connection", e)
-            Utilities.wrapAndThrowAsRuntimeException(e)
-          }
-          Utilities.sleep(DELAY_IN_MS)
+  def getInactiveDevices = {
+    var attempts = 0
+    var result: Map[String, Date] = Map()
+    var continue = true
+    while (continue) {
+      attempts += 1
+      if (getInactiveDevicesImpl.nonEmpty) {
+        result = getInactiveDevicesImpl
+        continue = false
+      } else {
+        if (attempts >= RETRIES) {
+          logger.warn("Couldn't get feedback connection")
+          continue = false
+        }
+        Utilities.sleep(DELAY_IN_MS)
       }
     }
     result
   }
 
   @throws(classOf[IOException])
-  def getInactiveDevicesImpl: Map[String, Date] = {
+  def getInactiveDevicesImpl = {
     var proxySocket: Socket = null
     var socket: Socket = null
     try {
       if (proxy == null) {
         socket = factory.createSocket(host, port)
       } else if (proxy.`type`() == Proxy.Type.HTTP) {
-      val tunnelBuilder: TlsTunnelBuilder = new TlsTunnelBuilder()
-      socket = tunnelBuilder.build(factory.asInstanceOf[SSLSocketFactory], proxy, proxyUsername, proxyPassword, host, port)
-    } else {
-      proxySocket = new Socket(proxy)
-      proxySocket.connect(new InetSocketAddress(host, port), connectTimeout)
-      socket = factory.asInstanceOf[SSLSocketFactory].createSocket(proxySocket, host, port, false)
-    }
-    socket.setSoTimeout(readTimeout)
-    socket.setKeepAlive(true)
-    val stream: InputStream = socket.getInputStream
-    Utilities.parseFeedbackStream(stream)
+        val tunnelBuilder: TlsTunnelBuilder = new TlsTunnelBuilder()
+        socket = tunnelBuilder.build(factory.asInstanceOf[SSLSocketFactory], proxy, proxyUsername, proxyPassword, host, port)
+      } else {
+        proxySocket = new Socket(proxy)
+        proxySocket.connect(new InetSocketAddress(host, port), connectTimeout)
+        socket = factory.asInstanceOf[SSLSocketFactory].createSocket(proxySocket, host, port, false)
+      }
+      socket.setSoTimeout(readTimeout)
+      socket.setKeepAlive(true)
+      val stream: InputStream = socket.getInputStream
+      Utilities.parseFeedbackStream(stream)
     } finally {
       Utilities.close(socket)
       Utilities.close(proxySocket)

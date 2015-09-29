@@ -1,7 +1,6 @@
 package ru.ryasale.apns
 
 /**
- * !Ready!
  * Created by ryasale on 16.09.15.
  *
  * The main class to interact with the APNS Service.

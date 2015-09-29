@@ -80,7 +80,7 @@ class ApnsPooledConnection(prototype: ApnsConnection, max: Int, executors: Execu
 
   @SuppressFBWarnings(value = Array("UG_SYNC_SET_UNSYNC_GET"), justification = "prototypes is a MT-safe container")
   override def getCacheLength(): Int = {
-    prototypes.peek().getCacheLength()
+    prototypes.peek().getCacheLength
   }
 
 }

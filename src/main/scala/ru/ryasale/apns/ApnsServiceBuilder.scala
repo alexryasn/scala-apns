@@ -581,8 +581,8 @@ class ApnsServiceBuilder {
     checkInitialization()
     var service: ApnsService = null
 
-    val sslFactory: SSLSocketFactory = sslContext.getSocketFactory
-    val feedback: ApnsFeedbackConnection = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, readTimeout, connectTimeout, proxyUsername, proxyPassword)
+    val sslFactory = sslContext.getSocketFactory
+    val feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, readTimeout, connectTimeout, proxyUsername, proxyPassword)
 
     var conn: ApnsConnection = new ApnsConnectionImpl(sslFactory, gatewayHost,
       gatewayPort, proxy, proxyUsername, proxyPassword, reconnectPolicy,

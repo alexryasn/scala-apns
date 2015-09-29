@@ -40,18 +40,11 @@ class ApnsConnectionImpl(factory: SocketFactory, host: String, port: Int, proxy:
 
   def defaultThreadFactory() = {
     new ThreadFactory() {
-      logger.debug("new thread factory")
       val wrapped = Executors.defaultThreadFactory()
-      logger.debug("wrapped {}", wrapped)
-
       override def newThread(r: Runnable) = {
-        logger.debug("r {}", r)
         val result = wrapped.newThread(r)
-        logger.debug("result {}", result)
         result.setName("MonitoringThread-" + threadId.incrementAndGet())
-        logger.debug("result {}", result)
         result.setDaemon(true)
-        logger.debug("result {}", result)
         result
       }
     }

@@ -5,7 +5,6 @@ import ru.ryasale.apns.ApnsNotification
 import ru.ryasale.apns.exceptions.NetworkIOException
 
 /**
- * !Ready!
  * Created by ryasale on 22.09.15.
  */
 trait ApnsConnection extends Closeable {
@@ -20,7 +19,7 @@ trait ApnsConnection extends Closeable {
 
   def setCacheLength(cacheLength: Integer)
 
-  def getCacheLength(): Int
+  def getCacheLength: Int
 }
 
 object ApnsConnection {

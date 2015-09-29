@@ -10,7 +10,7 @@ class ApnsImplTestScala {
 
   val logger = LoggerFactory.getLogger(getClass)
 
-  @Test
+  //@Test
   def pushSimpleAlert() {
     logger.info("start")
     val stream = getClass.getResourceAsStream(OWN_CERTIFICATE)
@@ -21,5 +21,15 @@ class ApnsImplTestScala {
     val payload = APNS.newPayload().alertBody("Can't be simpler than this!").build()
     val token = "fedfbcfb...."
     service.push(token, payload)
+  }
+
+  @Test
+  def checkFeedbackService(): Unit = {
+    val stream = getClass.getResourceAsStream(OWN_CERTIFICATE)
+    val service = APNS.newService().withSert(stream, OWN_PASSWORD).withSandboxDestination.build()
+    val inactiveDevices = service.getInactiveDevices
+    for (device <- inactiveDevices) {
+     logger.debug("inactive device {}", device)
+    }
   }
 }

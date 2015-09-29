@@ -5,21 +5,16 @@ import java.net.Socket
 import java.security.{GeneralSecurityException, KeyStore}
 import java.util.Date
 import java.util.regex.Pattern
-import javax.net.ssl.{SSLSocketFactory, SSLContext, KeyManagerFactory, TrustManagerFactory}
+import javax.net.ssl.{SSLContext, KeyManagerFactory, TrustManagerFactory}
 
 import org.slf4j.LoggerFactory
 import ru.ryasale.apns.exceptions.{InvalidSSLConfig, NetworkIOException}
 
 import scala.collection.immutable.HashMap
-import scala.collection.mutable
 
 /**
- * !Ready!
  * Created by ryasale on 16.09.15.
  */
-//class Utilities {
-//def this() = throw new AssertionError("Uninstantiable class")
-//}
 
 object Utilities {
 
@@ -65,16 +60,16 @@ object Utilities {
                     ksAlgorithm: String): SSLContext = {
     try {
       // Get a KeyManager and initialize it
-      val kmf: KeyManagerFactory = KeyManagerFactory.getInstance(ksAlgorithm)
+      val kmf = KeyManagerFactory.getInstance(ksAlgorithm)
       kmf.init(ks, password.toCharArray)
 
       // Get a TrustManagerFactory with the DEFAULT KEYSTORE, so we have all
       // the certificates in cacerts trusted
-      val tmf: TrustManagerFactory = TrustManagerFactory.getInstance(ksAlgorithm)
+      val tmf = TrustManagerFactory.getInstance(ksAlgorithm)
       tmf.init(null.asInstanceOf[KeyStore])
 
       // Get the SSLContext to help create SSLSocketFactory
-      val sslContext: SSLContext = SSLContext.getInstance("TLS")
+      val sslContext = SSLContext.getInstance("TLS")
       sslContext.init(kmf.getKeyManagers, tmf.getTrustManagers, null)
       sslContext
     }
@@ -168,30 +163,33 @@ object Utilities {
   def parseFeedbackStreamRaw(in: InputStream) = {
     var result: Map[Array[Byte], Integer] = new HashMap[Array[Byte], Integer]
     val data: DataInputStream = new DataInputStream(in)
-
-    while (true) {
+    var continue = true
+    while (continue) {
       try {
-        val time: Int = data.readInt()
-        val dtLength: Int = data.readUnsignedShort()
-        val deviceToken: Array[Byte] = new Array[Byte](dtLength)
+        val time = data.readInt()
+        val dtLength = data.readUnsignedShort()
+        val deviceToken = new Array[Byte](dtLength)
         data.readFully(deviceToken)
-
         result += deviceToken -> time
       } catch {
-        // case eofe: EOFException => return // не компилится
-        case ioe: IOException => throw new RuntimeException(ioe)
+        case eofe: EOFException =>
+          logger.warn("Failed to retrieve invalid devices")
+          continue = false
+        case ioe: IOException =>
+          logger.debug("catch {}", ioe)
+          throw new RuntimeException(ioe)
       }
     }
     result
   }
 
   def parseFeedbackStream(in: InputStream) = {
-    var result: Map[String, Date] = new HashMap[String, Date]
-    val raw: Map[Array[Byte], Integer] = parseFeedbackStreamRaw(in)
+    var result = new HashMap[String, Date]
+    val raw = parseFeedbackStreamRaw(in)
     raw foreach {
       case (dtArray, time) =>
-        val date: Date = new Date(time * 1000L)
-        val dtString: String = encodeHex(dtArray)
+        val date = new Date(time * 1000L)
+        val dtString = encodeHex(dtArray)
         result += dtString -> date
     }
     result
@@ -199,7 +197,6 @@ object Utilities {
 
   def close(closeable: Closeable) {
     logger.debug("close {}", closeable)
-
     try {
       if (closeable != null) {
         closeable.close()
@@ -209,7 +206,7 @@ object Utilities {
     }
   }
 
-  def close(closeable: Socket) = {
+  def close(closeable: Socket) {
     logger.debug("close {}", closeable)
     try {
       if (closeable != null) {
@@ -282,7 +279,6 @@ object Utilities {
       } else {
         more = 3
       }
-
       if (b + more > maxBytes) {
         return s.substring(0, i)
       }

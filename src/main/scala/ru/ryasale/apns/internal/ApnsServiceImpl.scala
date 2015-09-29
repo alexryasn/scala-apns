@@ -4,8 +4,8 @@ import ru.ryasale.apns.ApnsNotification
 import ru.ryasale.apns.exceptions.NetworkIOException
 
 /**
- * !Ready!
  * Created by ryasale on 22.09.15.
+ *
  */
 class ApnsServiceImpl(connection: ApnsConnection, feedback: ApnsFeedbackConnection) extends AbstractApnsService(feedback: ApnsFeedbackConnection) {
 
@@ -20,7 +20,7 @@ class ApnsServiceImpl(connection: ApnsConnection, feedback: ApnsFeedbackConnecti
     Utilities.close(connection)
   }
 
-  override def testConnection(): Unit = {
+  override def testConnection() {
     connection.testConnection()
   }
 }
