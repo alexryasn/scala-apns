@@ -10,7 +10,7 @@ class ApnsImplTestScala {
 
   val logger = LoggerFactory.getLogger(getClass)
 
-  //@Test
+  @Test
   def pushSimpleAlert() {
     logger.info("start")
     val stream = getClass.getResourceAsStream(OWN_CERTIFICATE)
